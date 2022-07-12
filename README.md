@@ -3,8 +3,8 @@
 # LOS Guidance.py
 * Line Of Sight Guidance
 ### Subscribed Data
-- ** /WayPoint ** (Float64MultiArray)
-- ** /GPSData ** (Float64MultiArray)
+- **/WayPoint** (Float64MultiArray)
+- **/GPSData** (Float64MultiArray)
 
 ### Published Data
 - ** /Psi_D ** (Float32)
