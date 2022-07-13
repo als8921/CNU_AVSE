@@ -14,15 +14,18 @@ D_gain = 3
 
 tau_N = 0
 tau_X = 150
-
+isEnd = False
 def callback(data1, data2):
     global psi_error_past
-    global timepast
+    global timepast, tau_X, isEnd
     dt = time.time() - timepast
     psi = data1.data
     if(psi > 180): 
         psi-=360
     psi_d = data2.data
+
+    if(psi_d==-10000):
+        isEnd = True
 
     psi_error = psi_d - psi
     if(psi_error > 180): psi_error -= 360
@@ -38,6 +41,10 @@ def callback(data1, data2):
 
     Rpwm = tau_X - tau_N / 2 + 1500
     Lpwm = tau_X + tau_N / 2 + 1500
+
+
+    if(isEnd):
+        Lpwm, Rpwm = 1500, 1500
 
     if(Rpwm > 1850): Rpwm = 1850
     elif(Rpwm < 1150) : Rpwm = 1150
@@ -61,7 +68,7 @@ def callback(data1, data2):
 if __name__ == '__main__':
     rospy.init_node('PPPWM', anonymous=False)
     sub1 = message_filters.Subscriber("/IMUdata", Float32)
-    sub2 = message_filters.Subscriber("/Psi_d", Float32)
+    sub2 = message_filters.Subscriber("/PPsi_d", Float32)
     mf = message_filters.ApproximateTimeSynchronizer([sub1, sub2],10,0.1,allow_headerless=True)
     mf.registerCallback(callback)
 
