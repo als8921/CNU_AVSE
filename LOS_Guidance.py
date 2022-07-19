@@ -2,18 +2,22 @@ import rospy
 import message_filters
 import math
 from std_msgs.msg import Float32, Float64MultiArray
+from sensor_msgs.msg import NavSatFix
 
 ### Parameter ###
-end_range=50
-Delta=50
+end_range=0.00004
+Delta=0.00002
 ##
 
 k=0
 def update(data1, data2):
     global k
-    WP=data2.data
-    x=data1.data[0]
-    y=data1.data[1]
+    Waypoint=data2.data
+    WP = [0] * len(Waypoint)
+    for i in range(0,len(Waypoint), 2):
+        WP[i], WP[i+1] = Waypoint[i+1],Waypoint[i]
+    x=data1.longitude
+    y=data1.latitude
 
     if (k <= len(WP) - 4):
 
@@ -32,6 +36,7 @@ def update(data1, data2):
         psi_d -= 360
     pubdata = Float32()
     pubdata.data = psi_d
+    print(psi_d)
     pub.publish(pubdata)
 
 
@@ -40,7 +45,7 @@ if __name__=="__main__":
     rospy.init_node("LOS_Guidance")
 
     pub = rospy.Publisher("/Psi_d", Float32, queue_size=10)
-    sub1 = message_filters.Subscriber("/GPSData", Float64MultiArray)
+    sub1 = message_filters.Subscriber("/ublox_gps/fix", NavSatFix)
     sub2 = message_filters.Subscriber("/Waypoint", Float64MultiArray)
     mf = message_filters.ApproximateTimeSynchronizer([sub1, sub2], 10, 0.1, allow_headerless=True)
     mf.registerCallback(update)
