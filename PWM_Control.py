@@ -4,7 +4,6 @@ import message_filters
 import time
 from std_msgs.msg import Float64MultiArray, Float32
 
-pub = rospy.Publisher('PWM', Float64MultiArray, queue_size=10)
 psi_error_past = 0
 
 timepast = time.time()
@@ -14,6 +13,11 @@ D_gain = 3
 
 tau_N = 0
 tau_X = 300
+
+
+maxThrust = 1950
+minThrust = 1050
+
 isEnd = False
 def callback(data1, data2):
     global psi_error_past
@@ -39,25 +43,30 @@ def callback(data1, data2):
     # if(tau_N > 2 * tau_X): tauN = 2 * tau_X
     # if(tau_N < -2 * tau_X): tau_N = -2 * tau_X
 
-    Rpwm = tau_X - tau_N / 2 + 1500
-    Lpwm = tau_X + tau_N / 2 + 1500
 
+    tempThrust = tau_X + abs(tau_N * 0.5) + 1500
+    if(tempThrust > maxThrust):
+        if(tau_N > 0):
+            Lpwm, Rpwm = maxThrust, maxThrust - tau_N
+        if(tau_N < 0):
+            Lpwm, Rpwm = maxThrust + tau_N, maxThrust
+    else:
+        Rpwm = tau_X - tau_N / 2 + 1500
+        Lpwm = tau_X + tau_N / 2 + 1500
 
     if(isEnd):
         Lpwm, Rpwm = 1500, 1500
 
-    if(Rpwm > 1950): Rpwm = 1950
-    elif(Rpwm < 1050) : Rpwm = 1050
+    if(Rpwm > maxThrust): Rpwm = maxThrust
+    elif(Rpwm < minThrust) : Rpwm = minThrust
 
-    if(Lpwm > 1950): Lpwm = 1950
-    elif(Lpwm < 1050) : Lpwm = 1050    
-    
-
+    if(Lpwm > maxThrust): Lpwm = maxThrust
+    elif(Lpwm < minThrust) : Lpwm = minThrust    
 
     Lpwm = 3000 - Lpwm
     PWM_data = Float64MultiArray()
     PWM_data.data = [Lpwm, Rpwm]
-    print(data1.data, data2.data, Lpwm, Rpwm)
+    print("PSI : ", data1.data," PSI_D : ",data2.data, " Lpwm : ", Lpwm, " Rpwm : ", Rpwm)
     pub.publish(PWM_data)
     timepast = time.time()
     
@@ -65,10 +74,10 @@ def callback(data1, data2):
 
 if __name__ == '__main__':
     rospy.init_node('PPPWM', anonymous=False)
+    pub = rospy.Publisher('PWM', Float64MultiArray, queue_size=10)
     sub1 = message_filters.Subscriber("/IMUData", Float32)
     sub2 = message_filters.Subscriber("/Psi_d", Float32)
     mf = message_filters.ApproximateTimeSynchronizer([sub1, sub2],10,0.1,allow_headerless=True)
     mf.registerCallback(callback)
 
     rospy.spin()
-
