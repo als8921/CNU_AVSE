@@ -95,14 +95,17 @@ void loop()
       {
             digitalWrite(Relay1, HIGH);
             digitalWrite(Relay2, HIGH);
-            TR = -(c2 * 3.75 + c1*0.5);
-            TL = c2 * 3.75 - c1*0.5;
+            TR = -(c2 * 5 + 5 *c1);
+            TL = c2 * 5 - 5 *c1;
             TL+=1500;
             TR+=1500;
             
             
-            TL = constrain(TL,1100,1900);
-            TR = constrain(TR,1100,1900);
+            TL = constrain(TL,1050,1950);
+            TR = constrain(TR,1050,1950);
+            Serial.print(TL);
+            Serial.print("  ");
+            Serial.println(TR);
             MR.writeMicroseconds(TR);
             ML.writeMicroseconds(TL);
       }
