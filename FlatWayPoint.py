@@ -1,9 +1,7 @@
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 import rospy
 import message_filters
-from matplotlib.animation import FuncAnimation
 from std_msgs.msg import Float32, Float64MultiArray
 
 ##### Setting #####
