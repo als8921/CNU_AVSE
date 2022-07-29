@@ -29,8 +29,8 @@ def LLh2Flat(start_p, present_p):
     Ened = (present_p[1] - start_p[1])/math.atan2(1, RN*math.cos(start_p[0]))
     return [Ened, Nned]
 
-def update(data3):
-    WayPoint = data3.data
+def update(data):
+    WayPoint = data.data
     FlatWayPoint = []
     for i in range(0, len(WayPoint), 2):
         FlatWayPoint.append(LLh2Flat(StartGpsCoor, [WayPoint[i], WayPoint[i + 1]]))
