@@ -90,10 +90,10 @@ def animate(i):
 
     temp = np.array(safeZone)
     for i in range(-60, 61):
-        if(safeZone[i] > safeZone[i + 1]): ### 장애물 왼쪽 끝
+        if(safeZone[i] > safeZone[i + 1]): ### 
             for j in range(floor(i + 1 - np.arctan2(BoatWidth/2, ld[i + 1]) * 180 / np.pi),i + 1):
                 temp[j] = 0
-        if(safeZone[i] < safeZone[i + 1]): ### 장애물 오른쪽 끝
+        if(safeZone[i] < safeZone[i + 1]): ### 
             for j in range(i, ceil(i + np.arctan2(BoatWidth/2, ld[i]) * 180 / np.pi) + 1):
                 temp[j] = 0
     safeZone = temp

@@ -8,15 +8,14 @@ psi_error_past = 0
 
 timepast = time.time()
 
-P_gain = 5
-D_gain = 3
+P_gain = 2
+D_gain = 0.5
 
 tau_N = 0
-tau_X = 300
+tau_X = 350
 
-
-maxThrust = 1950
 minThrust = 1050
+maxThrust = 1950
 
 isEnd = False
 def callback(data1, data2):
@@ -39,10 +38,6 @@ def callback(data1, data2):
     psi_error_past = psi_error
 
     tau_N = P_gain * psi_error + D_gain * psi_error_dot
-
-    # if(tau_N > 2 * tau_X): tauN = 2 * tau_X
-    # if(tau_N < -2 * tau_X): tau_N = -2 * tau_X
-
 
     tempThrust = tau_X + abs(tau_N * 0.5) + 1500
     if(tempThrust > maxThrust):
@@ -73,11 +68,10 @@ def callback(data1, data2):
 
 
 if __name__ == '__main__':
-    rospy.init_node('PPPWM', anonymous=False)
+    rospy.init_node('PWM_Control', anonymous=False)
     pub = rospy.Publisher('PWM', Float64MultiArray, queue_size=10)
     sub1 = message_filters.Subscriber("/IMUData", Float32)
     sub2 = message_filters.Subscriber("/Psi_d", Float32)
     mf = message_filters.ApproximateTimeSynchronizer([sub1, sub2],10,0.1,allow_headerless=True)
     mf.registerCallback(callback)
-
     rospy.spin()
